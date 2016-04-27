@@ -20,6 +20,7 @@ import h5py
 import os
 import sys
 import getopt
+import time
 
 from thor import xray
 import matplotlib.pyplot as plt
@@ -87,7 +88,7 @@ def main(argv):
         elif opt in ("-s","--frames"):
             frames = arg.split('/')
             
-            if len(qs)!=2:
+            if len(frames)!=2:
                 print "Please enter the starting frame and the ending frame numbers separated by /"
                 sys.exit(2)
             else:
@@ -99,7 +100,7 @@ def main(argv):
     
     t=mdtraj.load("dna_models/%s.trr"%dna_model,top="dna_models/%s.pdb"%dna_model)[frames[0]:frames[1]]
     
-    
+    output_file ="simulated_data/%s_%d_%d.hdf5"%(dna_model,frames[0],frames[1])
     while os.path.isfile(output_file):
         print "Will not overwrite old file. Please enter new name:"
         output_file = "simulated_data/%s.hdf5"%raw_input()
@@ -118,8 +119,11 @@ def main(argv):
 ##############################################################################
 # do the simulations
     f = h5py.File(output_file,'a')
-    idx = frames[0];
+    idx = frames[0]
+    tic = time.clock()
     for this_frame in t:
+#         this_frame = t[idx
+        print this_frame
         rings = xray.Rings.simulate(this_frame, n_molecules, q_values, n_phi, n_shots)
 
         # data to save
@@ -140,6 +144,9 @@ def main(argv):
         idx+=1
 
     f.close()
+    
+    toc=time.clock()
+    print "Total computation time is %.3g"%(toc-tic)
 
 
 if __name__ == "__main__":
