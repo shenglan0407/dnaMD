@@ -3,3 +3,6 @@
 \dna_models
 test_python
 \barley_scripts
+\.ipynb_checkpoints
+*.ipynb
+\simulated_data

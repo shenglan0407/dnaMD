@@ -25,9 +25,9 @@ import matplotlib.pyplot as plt
 # Code
 ##############################################################################
 
-dna_model = "dna17bp_sol_neu-MD_3_sliced"
+dna_model = "dna17bp_sol_neu-MD_2_water_shell"
 
-f = h5py.File("simulated_data/dna17bp_sol_neu-MD_3_sliced_1_10000.hdf5",'a')
+f = h5py.File("simulated_data/%s_0_10000.hdf5"%dna_model,'a')
 shots = set(f.keys())
 shots.remove('phi_values')
 shots.remove('q_values')

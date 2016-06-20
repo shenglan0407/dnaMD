@@ -42,7 +42,7 @@ def main(argv):
     q_values = [1.71]  # the |q| values of the rings to sim
     n_phi = 360                         # number of pts around the rings
     
-    output_file ="simulated_data/%s_%d_%d.hdf5"%(dna_model,frames[0],frames[1])
+    output_file = None
 ##############################################################################
 
 
@@ -99,8 +99,8 @@ def main(argv):
                     
     
     t=mdtraj.load("dna_models/%s.trr"%dna_model,top="dna_models/%s.pdb"%dna_model)[frames[0]:frames[1]]
-    
-    output_file ="simulated_data/%s_%d_%d.hdf5"%(dna_model,frames[0],frames[1])
+    if output_file is None:
+        output_file ="simulated_data/%s_%d_%d.hdf5"%(dna_model,frames[0],frames[1])
     while os.path.isfile(output_file):
         print "Will not overwrite old file. Please enter new name:"
         output_file = "simulated_data/%s.hdf5"%raw_input()
@@ -119,18 +119,20 @@ def main(argv):
 ##############################################################################
 # do the simulations
     f = h5py.File(output_file,'a')
-    idx = frames[0]
+#     idx = frames[0]
+    idx = 0
     tic = time.clock()
+    all_PI = np.zeros((t.n_frames,len(q_values),n_phi))
     for this_frame in t:
-#         this_frame = t[idx
-        print this_frame
+
+#         print this_frame
         rings = xray.Rings.simulate(this_frame, n_molecules, q_values, n_phi, n_shots)
 
         # data to save
         PI=rings.polar_intensities
         
         # if it is the first frame, save phi, q data
-        if idx == frames[0]:
+        if idx == 0:
             phis=rings.phi_values
             qs=rings.q_values
             
@@ -138,11 +140,10 @@ def main(argv):
             f.create_dataset('q_values',data=qs)
 
         # save the data
-        
-        f.create_dataset(str(idx),data=PI)
-        
+        all_PI[idx]=PI
         idx+=1
-
+    # save the data
+    f.create_dataset('polar_intensities',data=all_PI)
     f.close()
     
     toc=time.clock()
